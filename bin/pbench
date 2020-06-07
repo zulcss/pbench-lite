@@ -1,0 +1,25 @@
+#!/usr/bin/python3
+
+import click
+
+from pbench.agent.config import AgentConfig
+
+# from pbench.agent.utils import init_wrapper
+from pbench.agent import utils
+
+
+@click.command()
+@click.option(
+    "-C",
+    "--config",
+    help="Agent configuraiton file",
+    envvar="_PBENCH_AGENT_CONFIG",
+    type=click.Path(exists=True),
+)
+def main(config):
+    config = AgentConfig(config)
+    utils.init_wrapper(config)
+
+
+if __name__ == "__main__":
+    main()

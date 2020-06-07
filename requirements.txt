@@ -1,17 +1,3 @@
-ansible
-elasticsearch
 sh
-boto3==1.9.192  # required to save artifacts to s3
-botocore==1.12.192
-requests
-werkzeug
-flask
-flask-restful
 click
-cffi
-redis
-python-pidfile
-python-daemon
-bottle
-py
-numpy
+six
