@@ -1,0 +1,23 @@
+language: python
+dist: bionic
+python:
+ - "3.6"
+env:
+ matrix:
+  - TOXENV=lint
+  - TOXENV=agent
+  - TOXENV=server
+  - TOXENV=py3-server
+  - TOXENV=py3-agent
+  - TOXENV=py3-functional
+before_install:
+ - sudo apt-get update
+install:
+ # Perl JSON and JSON-XS required
+ - sudo apt-get install libjson-perl libjson-xs-perl
+ - travis_retry pip install tox
+script:
+ - tox
+cache:
+ directories:
+  - $HOME/.cache/pip
