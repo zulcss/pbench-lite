@@ -2,6 +2,7 @@ import click
 
 from pbench.cli.commands.tools import tool
 from pbench.cli.commands import cleanup
+from pbench.cli.commands import config
 
 
 @click.group()
@@ -23,3 +24,4 @@ def main(config):
 
 main.add_command(tool)
 main.add_command(cleanup.cleanup)
+main.add_command(config.config)
