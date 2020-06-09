@@ -1,12 +1,12 @@
 import click
 
-from . import test
+from . import clear
 
 
 @click.group(help="start/stop/kill/register pbench tools")
 @click.pass_context
-def tool(ctxt):
+def tools(ctxt):
     pass
 
 
-tool.add_command(test.list)
+tools.add_command(clear.clear)
