@@ -42,3 +42,7 @@ def gen_tools_group_list(pbench_run):
         logger.error("pbench run directory %s does not exist", pbench_run)
         sys.exit(1)
     print(pbench_run)
+
+
+def get_action(cmd):
+    return cmd.split(".")[-1]

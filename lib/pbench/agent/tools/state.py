@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import sys
 
+import sh
+
 from pbench.agent.logger import logger
 from pbench.agent.tools import (
     verify_tool_group,
@@ -107,3 +109,27 @@ class ToolState:
         elif group:
             for p in Path(self.config.rundir).glob(f"tools-v1-{group}/*"):
                 print(group, p.name, [x.name for x in Path(p).glob("*")])
+
+    def process(self, group, benchmark_dir, action):
+        """
+        """
+        if group is None:
+            logger.error("ERROR: required tool group paramanter missing")
+            sys.exit(1)
+
+        if benchmark_dir is None:
+            logger.error("ERROR: required directory argument missing")
+            sys.exit(1)
+
+        rundir = verify_tool_group(group)
+        if not rundir:
+            sys.exit(1)
+
+        if action == "kill":
+            logger.error(
+                "kill-tools is a no-op and has been deprecated: "
+                "pbench-stop-tools ensure tools are properly cleaned "
+                "up."
+            )
+            sys.exit(1)
+        sh.Command("pbench-tool-meister-client", group, benchmark_dir, action)()
