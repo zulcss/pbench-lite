@@ -1,6 +1,7 @@
 import click
 
 from . import clear
+from . import list
 
 
 @click.group(help="start/stop/kill/register pbench tools")
@@ -10,3 +11,4 @@ def tools(ctxt):
 
 
 tools.add_command(clear.clear)
+tools.add_command(list.list)

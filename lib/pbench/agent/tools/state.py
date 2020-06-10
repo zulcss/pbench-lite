@@ -74,5 +74,36 @@ class ToolState:
 
         sys.exit(result)
 
-    def _tools(self, tools_group_dir, tname, remote):
-        return [p for p in tools_group_dir.rglob(f"{remote}/{tname}")]
+    def list(self, tool, group, options):
+        """
+        List all tools from all groups,
+        list tools from a specific group, or
+        list which groups contain a specific tool
+        :param tool: the registered tool name
+        :param group: the group that the tool belongs too
+        """
+        if tool is not None and group is not None:
+            logger.error("You cannnot specifiy both --group and --name")
+            sys.exit(1)
+
+        if tool is None and group is None:
+            for p in Path(self.config.rundir).glob("tools-v1-*/*"):
+                # ignore empty directories
+                if p.is_dir():
+                    if next(os.scandir(p), False) is not False:
+                        print(
+                            "%s:" % str(p.parent).split("tools-v1-")[1],
+                            p.name,
+                            "[%s]" % ", ".join([x.name for x in Path(p).glob("*")]),
+                        )
+        elif tool:
+            groups = []
+            for p in Path(self.config.rundir).rglob(f"tools-v1-*/*/{tool}"):
+                group = str(p.parent.parent).split("tools-v1-")[1]
+                if group not in groups:
+                    groups.append(group)
+            if len(groups) != 0:
+                print("tool name: %s, groups: %s" % (tool, " ".join(groups)))
+        elif group:
+            for p in Path(self.config.rundir).glob(f"tools-v1-{group}/*"):
+                print(group, p.name, [x.name for x in Path(p).glob("*")])
