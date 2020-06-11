@@ -17,10 +17,7 @@ def verify_rundir(rundir):
 
 def verify_tool_group(rundir, group):
     """Verify that that the tool group directory exists"""
-    rundir = verify_rundir(Path(rundir, f"{TOOLS_GROUP_PREFIX}-{group}"))
-    if not rundir.exists():
-        sys.exit(1)
-    return rundir
+    return verify_rundir(Path(rundir, f"{TOOLS_GROUP_PREFIX}-{group}"))
 
 
 def get_tools_group_list(rundir):

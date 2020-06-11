@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import socket
 import sys
 
 import sh
@@ -17,6 +18,12 @@ class ToolState:
         self.config = config
         self.groups = get_tools_group_list(self.config.rundir)
         self.rundir = verify_rundir(self.config.rundir)
+        self.toolsdir = Path(self.config.installdir, "tool-scripts")
+        if not self.toolsdir.exists():
+            self.toolsdir = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)),
+                "../../../agent/tool-scripts",
+            )
 
     def clear(self, tool, group, remote):
         """Remove tools that have been registered
@@ -133,3 +140,59 @@ class ToolState:
             )
             sys.exit(1)
         sh.Command("pbench-tool-meister-client", group, benchmark_dir, action)()
+
+    def register(self, name, group, no_install, remotes, labels, args):
+        if not name:
+            logger.error("Missing required paramenter --name")
+            sys.exit(1)
+        tool = Path(self.toolsdir, name)
+        if not tool.exists():
+            logger.error(
+                "Could not find %s in %s: has this tool been "
+                "integrated into pbench-agent?",
+                name,
+                self.toolsdir,
+            )
+            sys.exit(1)
+
+        if remotes:
+            if "@" in remotes:
+                # We are delaing with a file container the list of remotes
+                remotes_file = Path(remotes.split("@")[1])
+                if not remotes_file.exists():
+                    logger.error(
+                        "--remotes=@%s specifies a file that doesnt " "exist",
+                        remotes_file,
+                    )
+                    sys.exit(1)
+                remote = remotes_file.read_text().splitlines()
+            else:
+                remote = remotes.split(",")
+        else:
+            remote = [(socket.gethostname())]
+
+        tg_dir = verify_tool_group(self.rundir, group)
+        tg_dir.mkdir(parents=True, exist_ok=True)
+
+        for r in remote:
+            tg_r_dir = Path(tg_dir, r)
+            tg_r_dir.mkdir(parents=True, exist_ok=True)
+
+            tool_file = Path(tg_r_dir, name)
+            if tool_file.exists():
+                tool_file.unlink()
+            tool_file.touch()
+
+            if args:
+                tool_file.write_text(args)
+
+            install_file = Path(tool_file, f"{name}.__noinstall__")
+            if no_install:
+                if not install_file.exists():
+                    tool_file.symlink_to(install_file)
+            else:
+                if install_file.exists():
+                    install_file.unlink()
+        logger.info(
+            "%s is not registered for host(s) %s in %s", name, ",".join(remote), group
+        )
