@@ -3,6 +3,7 @@ import sys
 import pathlib
 
 import six
+import numpy as np
 
 from pbench.agent.logger import logger
 
@@ -46,3 +47,15 @@ def gen_tools_group_list(pbench_run):
 
 def get_action(cmd):
     return cmd.split(".")[-1]
+
+
+def calculate_stddev(values=None):
+    values = list(values)
+    avg = np.average(values)
+    stddev = np.std(values)
+    stddevpct = 100 * stddev / avg
+
+    values = np.array(values)
+    closest_index = np.abs(values - avg).argmin() + 1
+
+    return (avg, stddev, stddevpct, closest_index)
